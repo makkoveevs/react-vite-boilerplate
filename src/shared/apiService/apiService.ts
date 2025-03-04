@@ -1,19 +1,20 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { AxiosRequestConfigAdvanced, TApiParams, TResponse } from "./types";
 import {
-  API_SOURCE,
-  DELAY_BETWEEN_RETRY_MS,
-  APP_TOKEN_KEY,
-  FLAG_IS_TOKEN_UPDATE,
-  MAX_RETRY_COUNT,
-  TIMEOUT_API,
   ACCESS_TOKEN_STORAGE_KEY,
-  REFRESH_TOKEN_STORAGE_KEY,
-  IS_REFRESHING_STORAGE_KEY,
+  API_SOURCE,
+  APP_TOKEN_KEY,
+  DELAY_BETWEEN_RETRY_MS,
+  DENY_RESPONSE_STATUS,
   EXPIRED_TOKEN_RESPONSE_STATUS,
-  DENY_RESPONSE_STATUS
+  FLAG_IS_TOKEN_UPDATE,
+  IS_AUTH_IN_PROGRESS_KEY,
+  IS_REFRESHING_STORAGE_KEY,
+  MAX_RETRY_COUNT,
+  REFRESH_TOKEN_STORAGE_KEY,
+  TIMEOUT_API
 } from "src/shared/constants";
 import { ROUTES } from "../ROUTES";
+import { AxiosRequestConfigAdvanced, TApiParams, TResponse } from "./types";
 
 let axiosSingletoneInstance: ApiService | undefined;
 export class ApiService {
@@ -89,6 +90,7 @@ export class ApiService {
           const refreshTokenFlag = localStorage.getItem(
             IS_REFRESHING_STORAGE_KEY
           );
+          const authInProgress = localStorage.getItem(IS_AUTH_IN_PROGRESS_KEY);
 
           if (error.response.status === EXPIRED_TOKEN_RESPONSE_STATUS) {
             // 1. вариант
@@ -112,7 +114,10 @@ export class ApiService {
                 //если нет рефреш токена в хранилище, то это сбойная ситуация. нужно идти на страницу авторизации
                 localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
                 localStorage.removeItem(IS_REFRESHING_STORAGE_KEY);
-                location.replace(ROUTES.root);
+
+                if (authInProgress === null) {
+                  location.replace(ROUTES.login);
+                }
                 return Promise.reject(new Error("Not find refresh token"));
               }
               try {
@@ -129,7 +134,7 @@ export class ApiService {
                 localStorage.removeItem(IS_REFRESHING_STORAGE_KEY);
                 localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
                 localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-                location.replace(ROUTES.root);
+                location.replace(ROUTES.login);
                 return Promise.reject(
                   new Error("Error on access token refreshing process")
                 );
@@ -164,7 +169,7 @@ export class ApiService {
                 localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
                 localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
                 //TODO отправить на страницу авторизации
-                location.replace(ROUTES.root);
+                location.replace(ROUTES.login);
                 return Promise.reject(new Error("Go to login page"));
               }
             }
@@ -186,8 +191,9 @@ export class ApiService {
             ) {
               this.retryCounter = 0;
               localStorage.removeItem(IS_REFRESHING_STORAGE_KEY);
+
               //TODO отправить на страницу авторизации
-              location.replace(ROUTES.root);
+              location.replace(ROUTES.login);
               return Promise.reject(new Error("Go to login page"));
             }
           }

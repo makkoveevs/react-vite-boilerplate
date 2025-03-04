@@ -1,7 +1,8 @@
-export const ACCESS_TOKEN_STORAGE_KEY = "access_token";
-export const REFRESH_TOKEN_STORAGE_KEY = "refresh_token";
+export const ACCESS_TOKEN_STORAGE_KEY = "accessToken";
+export const REFRESH_TOKEN_STORAGE_KEY = "refreshToken";
 export const TOKEN_TYPE_STORAGE_KEY = "token_type";
 export const IS_REFRESHING_STORAGE_KEY = "refreshTokenFlag";
+export const IS_AUTH_IN_PROGRESS_KEY = "authInProgress";
 export const FLAG_IS_TOKEN_UPDATE = "kc_tkn_is_refresh";
 
 export const MAX_RETRY_COUNT = 8;

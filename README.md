@@ -1,11 +1,3 @@
-#react-vite-boilerplate
-
-
-Description will appear here soon
-
-
-Prepare
-
 # Template для фронтенд проекта
 
 0. Окружение

@@ -1,10 +1,10 @@
 export type TUser = {
   id: string;
-  username: string;
-  fio: string;
+  firstName: string;
+  lastName: string;
   email: string;
   isAdmin: boolean;
 };
 
-export type TLoginRequestData = { username: string; password: string };
-export type TLoginResponse = { access_token: string; refresh_token: string };
+export type TLoginRequestData = { email: string; password: string };
+export type TLoginResponse = { accessToken: string; refreshToken: string };

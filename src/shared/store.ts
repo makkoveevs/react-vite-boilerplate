@@ -1,6 +1,10 @@
 import { makeAutoObservable } from "mobx";
-import { TLoginRequestData, TUser } from "./types";
 import api from "./api";
+import {
+  ACCESS_TOKEN_STORAGE_KEY,
+  REFRESH_TOKEN_STORAGE_KEY
+} from "./constants";
+import { TLoginRequestData, TUser } from "./types";
 
 class Store {
   public isAuth: boolean = false;
@@ -20,30 +24,32 @@ class Store {
   };
 
   public login = (data: TLoginRequestData): Promise<void> =>
-    //TODO
-    this.api
-      .login(data)
-      .then(() => void 0)
-      .finally(() => {
-        this.user = {
-          id: "qwoirejlsdlfk",
-          fio: "Тест Тестович",
-          username: data.username,
-          email: data.password,
-          isAdmin: Math.random() > 0.5
-        };
-        this.setIsAuth(true);
-      });
+    this.api.login(data).then(async (response) => {
+      const data = response.data;
+      localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, data.accessToken);
+      localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
+
+      this.user = await this.me();
+      this.setIsAuth(true);
+    });
 
   public logout = (): Promise<void> =>
-    //TODO
-    this.api
-      .logout()
-      .then(() => void 0)
-      .finally(() => {
-        this.setIsAuth(false);
-        this.user = null;
-      });
+    this.api.logout().then(() => {
+      localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+      this.setIsAuth(false);
+      this.user = null;
+    });
+
+  public me = (refetch: boolean = true): Promise<TUser> => {
+    if (this.user && !refetch) {
+      return Promise.resolve(this.user);
+    }
+    return this.api.me().then((response) => {
+      this.setIsUser(response.data);
+      return response.data;
+    });
+  };
 }
 
 export default new Store();

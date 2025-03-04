@@ -6,20 +6,20 @@ class Api {
   private readonly api = api;
 
   public async me(config?: AxiosRequestConfig): TResponse<TUser> {
-    return this.api.get<TUser>(`/api/v1/auth/me`, {}, config);
+    return this.api.get<TUser>(`/api/auth/me`, {}, config);
   }
 
-  public async logout(config?: AxiosRequestConfig): TResponse<TUser> {
-    return this.api.get<TUser>(`/api/v1/auth/logout`, {}, config);
+  public async logout(config?: AxiosRequestConfig): TResponse<void> {
+    return this.api.post<void, null>(`/api/auth/logout`, null, config);
   }
 
   public async login(
-    { username, password }: TLoginRequestData,
+    { email, password }: TLoginRequestData,
     config?: AxiosRequestConfig
   ): TResponse<TLoginResponse> {
     return this.api.post<TLoginResponse, TLoginRequestData>(
-      `/api/v1/auth/login`,
-      { username, password },
+      `/api/auth/login`,
+      { email, password },
       config
     );
   }

@@ -6,4 +6,4 @@ export const API_SOURCE =
 
 export const TIMEOUT_API = 60 * 1000;
 
-export const APP_TOKEN_KEY = "APP_TOKEN_KEY";
+export const APP_TOKEN_KEY = "accessToken";

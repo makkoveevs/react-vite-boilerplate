@@ -1,38 +1,40 @@
-import React, { useState } from "react";
-import "./App.css";
-import { BrowserRouter as Router, Outlet } from "react-router-dom";
+import { Button, ConfigProvider, theme, Tooltip } from "antd";
 import "antd/dist/reset.css";
+import React, { useState } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
-import { ConfigProvider, Layout, theme } from "antd";
-import { Sidebar } from "./components";
 
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RoutesConfig } from "./components/RoutesConfig";
 
+const queryClient = new QueryClient();
 const { defaultAlgorithm, darkAlgorithm } = theme;
-const { Content, Footer } = Layout;
 
 const App = (): React.JSX.Element => {
   const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false);
 
   return (
-    <ConfigProvider
-      theme={{ algorithm: isDarkTheme ? darkAlgorithm : defaultAlgorithm }}>
-      <Router>
-        <Layout style={{ minHeight: "100vh" }}>
-          <Sidebar
-            isDarkTheme={isDarkTheme}
-            onChangeTheme={(isDark: boolean): void => setIsDarkTheme(isDark)}
+    <QueryClientProvider client={queryClient}>
+      <ConfigProvider
+        theme={{
+          algorithm: isDarkTheme ? darkAlgorithm : defaultAlgorithm,
+          cssVar: true
+        }}>
+        <Router>
+          <RoutesConfig />
+        </Router>
+        <Tooltip
+          title="Переключить тему"
+          placement="right"
+          className="theme-button">
+          <Button
+            icon={isDarkTheme ? <SunOutlined /> : <MoonOutlined />}
+            onClick={() => setIsDarkTheme(!isDarkTheme)}
           />
-          <Layout>
-            <Content style={{ margin: "0 16px" }}>
-              <Outlet />
-              <RoutesConfig />
-            </Content>
-            <Footer style={{ textAlign: "center" }}>Footer</Footer>
-          </Layout>
-        </Layout>
-      </Router>
-    </ConfigProvider>
+        </Tooltip>
+      </ConfigProvider>
+    </QueryClientProvider>
   );
 };
 

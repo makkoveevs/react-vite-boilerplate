@@ -1,0 +1,4 @@
+.dropdown__avatar {
+  border: 1px solid var(--ant-color-border);
+  border-radius: 50%;
+}

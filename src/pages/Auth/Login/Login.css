@@ -1,0 +1,23 @@
+.container-login {
+}
+
+.container-login__icon {
+  padding: 16px;
+  font-size: 32px;
+  background: var(--ant-blue);
+  color: white;
+  border-radius: 50%;
+}
+.container-login__title {
+  font-weight: bold;
+  padding-top: 8px;
+}
+
+.container-login .form-container {
+  min-width: 400px;
+  padding-top: 8px;
+}
+.container-login .form-container button,
+.container-login .form-container input {
+  padding: 8px 16px;
+}
