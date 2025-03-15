@@ -7,4 +7,5 @@ export type TUser = {
 };
 
 export type TLoginRequestData = { email: string; password: string };
+export type TRefreshTokenRequestData = { refreshToken: string };
 export type TLoginResponse = { accessToken: string; refreshToken: string };

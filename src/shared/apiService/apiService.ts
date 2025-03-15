@@ -21,6 +21,13 @@ export class ApiService {
   private readonly axios!: AxiosInstance;
   private retryCounter = 0;
   private readonly tokenType = "Bearer";
+  private refreshTokenMethod:
+    | (({
+        refreshToken
+      }: {
+        refreshToken: string;
+      }) => TResponse<{ accessToken: string; refreshToken: string }>)
+    | undefined;
 
   constructor() {
     if (typeof axiosSingletoneInstance !== "undefined") {
@@ -44,6 +51,16 @@ export class ApiService {
     axiosSingletoneInstance = this;
     return axiosSingletoneInstance;
   }
+
+  public setRefreshTokenMethod = (
+    fn: ({
+      refreshToken
+    }: {
+      refreshToken: string;
+    }) => TResponse<{ accessToken: string; refreshToken: string }>
+  ): void => {
+    this.refreshTokenMethod = fn;
+  };
 
   private readonly getToken = (): string | undefined => {
     const tkn = localStorage.getItem(APP_TOKEN_KEY);
@@ -93,6 +110,7 @@ export class ApiService {
           const authInProgress = localStorage.getItem(IS_AUTH_IN_PROGRESS_KEY);
 
           if (error.response.status === EXPIRED_TOKEN_RESPONSE_STATUS) {
+            location.replace(ROUTES.login);
             // 1. вариант
             // если:
             // - код статуса ответа === EXPIRED_TOKEN_RESPONSE_STATUS
@@ -123,10 +141,27 @@ export class ApiService {
               try {
                 // устанавливаем признак выполнения обновления токена и запускаем запрос на обновление токена
                 localStorage.setItem(IS_REFRESHING_STORAGE_KEY, "true");
-                // await this.handleRefreshAccessToken();
+                const refreshResult = await this.refreshTokenMethod?.({
+                  refreshToken
+                });
+                localStorage.removeItem(IS_REFRESHING_STORAGE_KEY);
+                if (
+                  refreshResult?.data?.accessToken &&
+                  refreshResult?.data?.refreshToken
+                ) {
+                  localStorage.setItem(
+                    ACCESS_TOKEN_STORAGE_KEY,
+                    refreshResult?.data?.accessToken
+                  );
+                  localStorage.setItem(
+                    REFRESH_TOKEN_STORAGE_KEY,
+                    refreshResult?.data?.refreshToken
+                  );
+                } else {
+                  throw new Error("No tokens in response");
+                }
                 //TODO добавить метод обновления токена
                 // снимаем признак выполнения обновления токена, обнуляем счётчик попыток и запускаем повторно исходный запрос
-                localStorage.removeItem(IS_REFRESHING_STORAGE_KEY);
                 this.retryCounter = 0;
                 return this.axios(originalRequest);
               } catch {

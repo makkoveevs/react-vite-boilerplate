@@ -1,6 +1,11 @@
 import { AxiosRequestConfig } from "axios";
 import { api, TResponse } from "src/shared/apiService";
-import { TLoginRequestData, TLoginResponse, TUser } from "./types";
+import {
+  TLoginRequestData,
+  TLoginResponse,
+  TRefreshTokenRequestData,
+  TUser
+} from "./types";
 
 class Api {
   private readonly api = api;
@@ -13,10 +18,22 @@ class Api {
     return this.api.post<void, null>(`/api/auth/logout`, null, config);
   }
 
+  public async refreshToken(
+    { refreshToken }: TRefreshTokenRequestData,
+    config?: AxiosRequestConfig
+  ): TResponse<TLoginResponse> {
+    return this.api.post<TLoginResponse, TRefreshTokenRequestData>(
+      `/api/auth/refresh-token`,
+      { refreshToken },
+      config
+    );
+  }
+
   public async login(
     { email, password }: TLoginRequestData,
     config?: AxiosRequestConfig
   ): TResponse<TLoginResponse> {
+    this.api.setRefreshTokenMethod(this.refreshToken);
     return this.api.post<TLoginResponse, TLoginRequestData>(
       `/api/auth/login`,
       { email, password },
