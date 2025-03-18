@@ -4,11 +4,14 @@ import "./index.css";
 import { ACCESS_TOKEN_STORAGE_KEY } from "./shared/constants/auth.ts";
 import store from "./shared/store.ts";
 
-const isAuthorized = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) !== null;
-store.setIsAuth(isAuthorized);
+const hasToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) !== null;
 
-if (isAuthorized) {
-  await store.me();
+if (hasToken) {
+  try {
+    await store.me();
+    store.setIsAuth(hasToken);
+  } catch {
+    store.setIsAuth(false);
+  }
 }
-
 createRoot(document.getElementById("root")!).render(<App />);
